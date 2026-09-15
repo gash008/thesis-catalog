@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thesis Book Reservation System</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --secondary-color: #03dac6;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+            --reserved-color: #cf6679;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .container {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .search-bar {
+            background: #2d2d2d;
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 20px;
+            color: white;
+            width: 100%;
+            max-width: 400px;
+            outline: none;
+        }
+
+        .tabs-container {
+            background: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: -12px;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .cat-btn {
+            background: #2d2d2d;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .cat-btn.active {
+            background: var(--primary-color);
+            color: #121212;
+            font-weight: bold;
+        }
+
+        .catalog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .book-card {
+            background: #252525;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .book-card:hover {
+            transform: translateX(3px);
+            background: #2d2d2d;
+        }
+
+        .book-card.selected {
+            background: #2d2d2d;
+            border-left-color: var(--primary-color);
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .book-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 15px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #333;
+            color: var(--secondary-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .reservation-panel {
+            background: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .abstract-box {
+            background: #252525;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #ccc;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        input, select {
+            background: #252525;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            color: white;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .reserve-btn {
+            background: var(--primary-color);
+            color: #121212;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .reserve-btn:hover {
+            background: #a370db;
+        }
+
+        .reservations-view {
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .res-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .res-date {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📚 Thesis Catalog & Book Reservation</h1>
+        <input type="text" id="searchBar" class="search-bar" placeholder="Search title, keywords (e.g. body shaming)...">
+    </header>
+
+    <main class="tabs-container">
+        <div class="tabs" id="yearTabs">
+            <!-- Dynamic Year Tabs -->
+        </div>
+        
+        <div class="category-filters" id="catFilters">
+            <!-- Dynamic Methodologies -->
+        </div>
+
+        <div class="catalog-list" id="catalogList">
+            <!-- Dynamic Book Cards -->
+        </div>
+    </main>
+
+    <aside class="reservation-panel" id="resPanel">
+        <h3 id="panelTitle">Select a book to reserve</h3>
+        
+        <div id="panelContent" style="display: none; flex-direction: column; gap: 15px;">
+            <div>
+                <label>Abstract Preview</label>
+                <div class="abstract-box" id="panelAbstract"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="borrowerName">Your Name</label>
+                <input type="text" id="borrowerName" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="reserveDate">Choose Available Date (Only Open Days)</label>
+                <select id="reserveDate">
+                    <!-- Configured open days here -->
+                    <option value="2026-09-16">Wednesday - Sep 16, 2026</option>
+                    <option value="2026-09-19">Saturday - Sep 19, 2026</option>
+                    <option value="2026-09-23">Wednesday - Sep 23, 2026</option>
+                    <option value="2026-09-26">Saturday - Sep 26, 2026</option>
+                </select>
+            </div>
+
+            <button class="reserve-btn" onclick="makeReservation()">Confirm Instant Reservation</button>
+
+            <div class="reservations-view">
+                <label>Existing Bookings for this item:</label>
+                <div id="existingReservations" style="margin-top: 5px;"></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script>
+    // Mock Data Matrix Structured as Requested
+    const thesisDatabase = [
+        { id: 1, year: "2026", title: "Impact of Body Shaming in Digital Spaces", author: "Dela Cruz, A.", methodology: "Phenomenological", tags: ["body shaming", "social media", "self-esteem"], abstract: "This phenomenological study explores the lived experiences of young adults dealing with cyberbullying and body shaming on modern social media platforms.", reservations: [] },
+        { id: 2, year: "2026", title: "Cultural Rites of the Cordillera Tribes", author: "Santos, M.", methodology: "Ethnography", tags: ["culture", "indigenous", "tradition"], abstract: "An ethnographic immersion documenting the evolving wedding customs and community rituals among contemporary indigenous tribes in northern Philippines.", reservations: [{"date": "2026-09-19", "name": "John Doe"}] },
+        { id: 3, year: "2025", title: "Coping Mechanisms to Academic Anxiety", author: "Reyes, J.", methodology: "Phenomenological", tags: ["mental health", "students", "anxiety"], abstract: "Investigating how graduating students manage panic and clinical anxiety during critical thesis defenses and final standard evaluations.", reservations: [] },
+        { id: 4, year: "2025", title: "Urban Vendor Survival Ecosystems", author: "Bautista, L.", methodology: "Grounded Theory", tags: ["economy", "poverty", "metropolis"], abstract: "A study constructing a grounded framework of informal trade economies and law enforcement evasion techniques among metro street vendors.", reservations: [] },
+        { id: 5, year: "2024", title: "Perceptions on Corporate Body Shaming", author: "Aquino, K.", methodology: "Case Study", tags: ["body shaming", "workplace", "discrimination"], abstract: "A multi-case deep dive exploring weight bias, implicit microaggressions, and hiring discrimination faced by corporate professionals.", reservations: [] }
+    ];
+
+    let currentYear = "2026";
+    let currentCategory = "All";
+    let selectedBookId = null;
+
+    // Initialization
+    function init() {
+        renderTabs();
+        renderFilters();
+        renderCatalog();
+    }
+
+    function renderTabs() {
+        const years = [...new Set(thesisDatabase.map(b => b.year))].sort().reverse();
+        const container = document.getElementById('yearTabs');
+        container.innerHTML = years.map(y => `
+            <button class="tab-btn ${y === currentYear ? 'active' : ''}" onclick="setYear('${y}')">${y}</button>
+        `).join('');
+    }
+
+    function renderFilters() {
+        const categories = ["All", ...new Set(thesisDatabase.map(b => b.methodology))];
+        const container = document.getElementById('catFilters');
+        container.innerHTML = categories.map(c => `
+            <button class="cat-btn ${c === currentCategory ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>
+        `).join('');
+    }
+
+    function renderCatalog() {
+        const query = document.getElementById('searchBar').value.toLowerCase();
+        const container = document.getElementById('catalogList');
+        
+        const filtered = thesisDatabase.filter(book => {
+            const matchesYear = book.year === currentYear;
+            const matchesCat = currentCategory === "All" || book.methodology === currentCategory;
+            const matchesSearch = book.title.toLowerCase().includes(query) || 
+                                  book.abstract.toLowerCase().includes(query) ||
+                                  book.tags.some(t => t.toLowerCase().includes(query));
+            return matchesYear && matchesCat && matchesSearch;
+        });
+
+        if(filtered.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted); padding: 10px;">No matching theses found.</p>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(book => `
+            <div class="book-card ${book.id === selectedBookId ? 'selected' : ''}" onclick="selectBook(${book.id})">
+                <div class="book-title">${book.title}</div>
+                <div class="book-meta">
+                    <span>👤 ${book.author}</span>
+                    <span>📂 ${book.methodology}</span>
+                    <span>📅 ${book.year}</span>
+                </div>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    ${book.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function setYear(year) {
+        currentYear = year;
+        renderTabs();
+        renderCatalog();
+    }
+
+    function setCategory(cat) {
+        currentCategory = cat;
+        renderFilters();
+        renderCatalog();
+    }
+
+    function selectBook(id) {
+        selectedBookId = id;
+        renderCatalog();
+        
+        const book = thesisDatabase.find(b => b.id === id);
+        document.getElementById('panelTitle').innerText = book.title;
+        document.getElementById('panelAbstract').innerText = book.abstract;
+        document.getElementById('panelContent').style.display = 'flex';
+        
+        updateReservationsList(book);
+    }
+
+    function updateReservationsList(book) {
+        const container = document.getElementById('existingReservations');
+        if(book.reservations.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted)">No active reservations. All dates open.</p>';
+            return;
+        }
+        container.innerHTML = book.reservations.map(r => `
+            <div class="res-item">
+                <span class="res-date">🗓️ ${r.date}</span>
+                <span>Claimed by: ${r.name}</span>
+            </div>
+        `).join('');
+    }
+
+    function makeReservation() {
+        const name = document.getElementById('borrowerName').value.trim();
+        const date = document.getElementById('reserveDate').value;
+        
+        if(!name) {
+            alert('Please enter your name to book!');
+            return;
+        }
+
+        const book = thesisDatabase.find(b => b.id === selectedBookId);
+        
+        // Check if date already booked for this book
+        const exists = book.reservations.some(r => r.date === date);
+        if(exists) {
+            alert('This specific book is already reserved for that date! Please select another open Wednesday or Saturday.');
+            return;
+        }
+
+        // Save reservation instantly without login backend friction
+        book.reservations.push({ date, name });
+        alert(`Successfully reserved "${book.title}" for ${date}! No sign-up required.`);
+        document.getElementById('borrowerName').value = '';
+        updateReservationsList(book);
+    }
+
+    document.getElementById('searchBar').addEventListener('input', renderCatalog);
+    init();
+</script>
+</body>
+</html>
